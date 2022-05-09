@@ -37,6 +37,11 @@ public class SearchFiles {
 		boolean raw = false;
 		String queryString = null;
 		int hitsPerPage = 10;
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        new UI().setVisible(true);
+                       }
+                });
 
 		try {
 			IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths
@@ -58,8 +63,8 @@ public class SearchFiles {
 					System.out.println("Enter query: ");
 				}
 
-				String line = queryString != null ? queryString : in.readLine();
-
+				//String line = queryString != null ? queryString : in.readLine();
+                                String line = UI.jTextArea2.getText();
 				if (line == null || line.length() == -1) {
 					break;
 				}
