@@ -3,13 +3,36 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.erico.lucene;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.id.IndonesianAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.similarities.DefaultSimilarity;
+import org.apache.lucene.search.similarities.Similarity;
+import org.apache.lucene.store.FSDirectory;
 
 /**
  *
  * @author user
  */
 public class UI extends javax.swing.JFrame {
-
+    static String temp = null;
+    boolean isTrue = false;
     /**
      * Creates new form UI
      */
@@ -58,26 +81,26 @@ public class UI extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(162, 162, 162)
+                .addGap(102, 102, 102)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jButton1)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(345, Short.MAX_VALUE))
+                .addContainerGap(105, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(46, 46, 46)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(28, 28, 28)
                 .addComponent(jLabel1)
                 .addGap(41, 41, 41)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(53, 53, 53))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(36, 36, 36))
         );
 
         pack();
@@ -86,13 +109,198 @@ public class UI extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        String input = jTextArea2.getText();
-        System.out.println(input);
+        jTextArea1.setText("");
+        isTrue = true;
+        cariKerja();
     }//GEN-LAST:event_jButton1ActionPerformed
+    
+    public String getTulisan(){
+        String tempo = temp;
+        return tempo;
+    }
+    
+    public static final String INDEX_PATH = "C:\\Users\\Jmslord\\Documents\\NetBeansProjects\\customized-indonesian-analyzer\\index-example";
+	// True if you want to use stemmer, false otherwise
+	public static final boolean USE_STEMMER = true;
+	// True if you want to use stopword removal, false otherwise
+	public static final boolean USE_STOPWORD = true;
+	
+	/**
+	 * This demonstrates a typical paging search scenario, where the search
+	 * engine presents pages of size n to the user. The user can then go to the
+	 * next page if interested in the next hits.
+	 * 
+	 * When the query is executed for the first time, then only enough results
+	 * are collected to fill 5 result pages. If the user wants to page beyond
+	 * this limit, then the query is executed another time and all hits are
+	 * collected.
+	 * 
+	 */
+	public static void doPagingSearch(BufferedReader in,
+			IndexSearcher searcher, Query query, int hitsPerPage, boolean raw,
+			boolean interactive) throws IOException {
 
+		// Collect enough docs to show 5 pages
+		TopDocs results = searcher.search(query, 5 * hitsPerPage);
+		ScoreDoc[] hits = results.scoreDocs;
+
+		int numTotalHits = results.totalHits;
+		System.out.println(numTotalHits + " total matching documents");
+                jTextArea1.append(numTotalHits+" total matching documents");
+
+		int start = 0;
+		int end = Math.min(numTotalHits, hitsPerPage);
+
+		while (true) {
+			if (end > hits.length) {
+				System.out
+						.println("Only results 1 - " + hits.length + " of "
+								+ numTotalHits
+								+ " total matching documents collected.");
+				System.out.println("Collect more (y/n) ?");
+				String line = in.readLine();
+				if (line.length() == 0 || line.charAt(0) == 'n') {
+					break;
+				}
+
+				hits = searcher.search(query, numTotalHits).scoreDocs;
+			}
+
+			end = Math.min(hits.length, start + hitsPerPage);
+
+			for (int i = start; i < end; i++) {
+				if (raw) { // output raw format
+					System.out.println("doc=" + hits[i].doc + " score="
+							+ hits[i].score);
+					continue;
+				}
+
+				Document doc = searcher.doc(hits[i].doc);
+				String path = doc.get("path");
+				if (path != null) {
+					System.out.println((i + 1) + ". " + path);
+                                        jTextArea1.append("\n"+(i + 1) + ". " + path);
+					String title = doc.get("title");
+					if (title != null) {
+						System.out.println("   Title: " + doc.get("title"));
+					}
+				} else {
+					System.out.println((i + 1) + ". "
+							+ "No path for this document");
+				}
+
+			}
+
+			if (!interactive || end == 0) {
+				break;
+			}
+
+			if (numTotalHits >= end) {
+				boolean quit = false;
+				while (true) {
+					System.out.print("Press ");
+					if (start - hitsPerPage >= 0) {
+						System.out.print("(p)revious page, ");
+					}
+					if (start + hitsPerPage < numTotalHits) {
+						System.out.print("(n)ext page, ");
+					}
+					System.out
+							.println("(q)uit or enter number to jump to a page.");
+
+					String line = in.readLine();
+					if (line.length() == 0 || line.charAt(0) == 'q') {
+						quit = true;
+						break;
+					}
+					if (line.charAt(0) == 'p') {
+						start = Math.max(0, start - hitsPerPage);
+						break;
+					} else if (line.charAt(0) == 'n') {
+						if (start + hitsPerPage < numTotalHits) {
+							start += hitsPerPage;
+						}
+						break;
+					} else {
+						int page = Integer.parseInt(line);
+						if ((page - 1) * hitsPerPage < numTotalHits) {
+							start = (page - 1) * hitsPerPage;
+							break;
+						} else {
+							System.out.println("No such page");
+						}
+					}
+				}
+				if (quit)
+					break;
+				end = Math.min(numTotalHits, start + hitsPerPage);
+			}
+		}
+	}
+    
     /**
      * @param args the command line arguments
      */
+        
+        public static void cariKerja(){
+            String field = "contents";
+		boolean raw = false;
+		String queryString = null;
+                
+		int hitsPerPage = 10;
+		try {
+			IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths
+					.get(INDEX_PATH)));
+
+			IndexSearcher searcher = new IndexSearcher(reader);
+			Similarity similarity = new DefaultSimilarity();
+			searcher.setSimilarity(similarity);
+
+			Analyzer analyzer = new CustomizedIndonesianAnalyzer(USE_STEMMER, USE_STOPWORD);
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					System.in, StandardCharsets.UTF_8));
+
+			QueryParser parser = new QueryParser(field, analyzer);
+			while (true) {
+                                queryString = jTextArea2.getText();
+                                String line=queryString;
+                                System.out.println("line"+line);
+                                
+				if (queryString == null) { // prompt the user
+					System.out.println("Enter query: ");
+				}
+
+				//String line = queryString != null ? queryString : in.readLine();
+                                //String line = temp;
+				if (line == null || line.length() == -1) {
+					break;
+				}
+
+				line = line.trim();
+
+				if (line.length() == 0) {
+					break;
+				}
+
+				Query query = parser.parse(line);
+
+				System.out.println("Searching for: " + query.toString(field));
+
+				doPagingSearch(in, searcher, query, hitsPerPage, raw,
+						queryString == null);
+
+				if (queryString != null) {
+					break;
+				}
+			}
+			reader.close();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        }
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -123,6 +331,8 @@ public class UI extends javax.swing.JFrame {
                 new UI().setVisible(true);
             }
         });
+        cariKerja();
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -130,7 +340,9 @@ public class UI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    public javax.swing.JTextArea jTextArea1;
+    public static javax.swing.JTextArea jTextArea1;
     public static javax.swing.JTextArea jTextArea2;
     // End of variables declaration//GEN-END:variables
 }
+
+
