@@ -26,12 +26,12 @@ import org.apache.lucene.store.FSDirectory;
 public class SearchFiles {
 	/** SET THE VARIABLE HERE */
 	// Index from IndexFiles path
-	public static final String INDEX_PATH = "D:\\Documents\\NetBeansProjects\\lucene\\index-example";
+	//public static final String INDEX_PATH = "C:\\Users\\Jmslord\\Documents\\NetBeansProjects\\customized-indonesian-analyzer\\index-example";
 	// True if you want to use stemmer, false otherwise
 	public static final boolean USE_STEMMER = true;
 	// True if you want to use stopword removal, false otherwise
 	public static final boolean USE_STOPWORD = true;
-	
+	public static final String INDEX_PATH = "D:\\Documents\\NetBeansProjects\\lucene\\index-example";
 	public static void main(String[] args) {
 		String field = "contents";
 		boolean raw = false;
