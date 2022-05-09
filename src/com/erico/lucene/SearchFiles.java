@@ -37,9 +37,11 @@ public class SearchFiles {
 		boolean raw = false;
 		String queryString = null;
 		int hitsPerPage = 10;
+                String temp = "";
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     public void run() {
                         new UI().setVisible(true);
+                        //temp = UI.jTextArea2.getText();
                        }
                 });
 
@@ -65,6 +67,7 @@ public class SearchFiles {
 
 				//String line = queryString != null ? queryString : in.readLine();
                                 String line = UI.jTextArea2.getText();
+                                System.out.println(line);
 				if (line == null || line.length() == -1) {
 					break;
 				}
