@@ -1,0 +1,4 @@
+Jakarta, CNBC Indonesia - Beberapa aplikasi Android disebut dapat merampok rekening bank Anda. Kok bisa?
+Berawal dari sebuah trojan perbankan bernama Sharkbot yang ditemukan berhasil menghindari keamanan Google Play Store. Ia berhasil lolos dengan menyamar sebagai aplikasi anti-virus.
+
+Sharkbot ini sama seperti malware lainnya yang merupakan trojan keuangan yang bisa mencuri uang dan menyusup ke perangkat korbannya.
