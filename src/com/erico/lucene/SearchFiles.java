@@ -36,7 +36,7 @@ public class SearchFiles {
 		String field = "contents";
 		boolean raw = false;
 		String queryString = null;
-		int hitsPerPage = 10;
+		int hitsPerPage = 20;
                 String temp = "";
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     public void run() {

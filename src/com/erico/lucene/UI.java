@@ -3,11 +3,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package com.erico.lucene;
+import static com.erico.lucene.IndexFiles.USE_STEMMER;
+import static com.erico.lucene.IndexFiles.USE_STOPWORD;
+import static com.erico.lucene.IndexFiles.indexDocs;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.swing.JFileChooser;
 
@@ -17,6 +21,8 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
@@ -25,6 +31,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.DefaultSimilarity;
 import org.apache.lucene.search.similarities.Similarity;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 /**
@@ -57,6 +64,7 @@ public class UI extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        btnFolder = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -80,28 +88,42 @@ public class UI extends javax.swing.JFrame {
 
         jLabel2.setText("Made by Erico Johson & James S Effendy Univ. Tarumanagara");
 
+        btnFolder.setText("Folder");
+        btnFolder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFolderActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jButton1)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(102, 102, 102)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(55, 55, 55)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(84, 84, 84)
                         .addComponent(jLabel2))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(98, 98, 98)
                         .addComponent(jLabel1)))
-                .addContainerGap(68, Short.MAX_VALUE))
+                .addContainerGap(95, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(55, 55, 55)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 369, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(btnFolder)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 429, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -110,13 +132,15 @@ public class UI extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnFolder)
+                    .addComponent(jButton1))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
+                .addGap(31, 31, 31))
         );
 
         pack();
@@ -124,10 +148,17 @@ public class UI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
     static JFileChooser chooser;
     String choosertitle;
+    public static String INDEX_PATH;
+    public static String CORPUS_PATH;
+    public static final boolean USE_STEMMER = true;
+    public static final boolean USE_STOPWORD = true;
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         jTextArea1.setText("");
         isTrue = true;
+        cariKerja();
+    }//GEN-LAST:event_jButton1ActionPerformed
+    public String FileChooser(){
         chooser = new JFileChooser(); 
         chooser.setCurrentDirectory(new java.io.File("."));
         chooser.setDialogTitle(choosertitle);
@@ -144,31 +175,34 @@ public class UI extends javax.swing.JFrame {
         else {
         System.out.println("No Selection ");
         }
-        cariKerja();
-    }//GEN-LAST:event_jButton1ActionPerformed
+        return chooser.getSelectedFile().toString();
+    }
+    private void btnFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFolderActionPerformed
+
+        CORPUS_PATH=FileChooser();
+        INDEX_PATH=FileChooser();
+        try {
+			Directory indexDir = FSDirectory.open(Paths.get(INDEX_PATH));
+			Analyzer analyzer = new CustomizedIndonesianAnalyzer(USE_STEMMER, USE_STOPWORD);
+			IndexWriterConfig config = new IndexWriterConfig(analyzer);
+			config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+			IndexWriter indexWriter = new IndexWriter(indexDir, config);
+
+			Path docDir = Paths.get(CORPUS_PATH);
+			indexDocs(indexWriter, docDir);
+			indexWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }//GEN-LAST:event_btnFolderActionPerformed
     
     public String getTulisan(){
         String tempo = temp;
         return tempo;
     }
     
-        public static String INDEX_PATH;
-	// True if you want to use stemmer, false otherwise
-	public static final boolean USE_STEMMER = true;
-	// True if you want to use stopword removal, false otherwise
-	public static final boolean USE_STOPWORD = true;
+        
 	//public static final String INDEX_PATH = "D:\\Documents\\NetBeansProjects\\lucene\\index-example";
-	/**
-	 * This demonstrates a typical paging search scenario, where the search
-	 * engine presents pages of size n to the user. The user can then go to the
-	 * next page if interested in the next hits.
-	 * 
-	 * When the query is executed for the first time, then only enough results
-	 * are collected to fill 5 result pages. If the user wants to page beyond
-	 * this limit, then the query is executed another time and all hits are
-	 * collected.
-	 * 
-	 */
 	public static void doPagingSearch(BufferedReader in,
 			IndexSearcher searcher, Query query, int hitsPerPage, boolean raw,
 			boolean interactive) throws IOException {
@@ -276,7 +310,7 @@ public class UI extends javax.swing.JFrame {
      */
         
         public static void cariKerja(){
-            INDEX_PATH=chooser.getSelectedFile().toString();
+            
             String field = "contents";
 		boolean raw = false;
 		String queryString = null;
@@ -370,6 +404,7 @@ public class UI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnFolder;
     public javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
