@@ -65,6 +65,7 @@ public class UI extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         btnFolder = new javax.swing.JButton();
+        jTextField1 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -116,6 +117,8 @@ public class UI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 80, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnFolder)
+                        .addGap(44, 44, 44)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
@@ -137,7 +140,8 @@ public class UI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnFolder)
-                    .addComponent(jButton1))
+                    .addComponent(jButton1)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
                 .addGap(31, 31, 31))
@@ -315,7 +319,7 @@ public class UI extends javax.swing.JFrame {
 		boolean raw = false;
 		String queryString = null;
                 
-		int hitsPerPage = 10;
+		int hitsPerPage = 102;
 		try {
 			IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths
 					.get(INDEX_PATH)));
@@ -354,7 +358,7 @@ public class UI extends javax.swing.JFrame {
 				Query query = parser.parse(line);
 
 				System.out.println("Searching for: " + query.toString(field));
-
+                                jTextField1.setText(query.toString(field));
 				doPagingSearch(in, searcher, query, hitsPerPage, raw,
 						queryString == null);
 
@@ -412,6 +416,7 @@ public class UI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     public static javax.swing.JTextArea jTextArea1;
     public static javax.swing.JTextArea jTextArea2;
+    private static javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }
 
