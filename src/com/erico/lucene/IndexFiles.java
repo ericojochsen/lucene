@@ -31,8 +31,8 @@ import org.apache.lucene.util.Version;
 
 public class IndexFiles {
 	
-	public static String CORPUS_PATH = "C:\\Users\\Jmslord\\Documents\\NetBeansProjects\\customized-indonesian-analyzer\\corpus-example";
-	public static String INDEX_PATH = "C:\\Users\\Jmslord\\Documents\\NetBeansProjects\\customized-indonesian-analyzer\\index-example";
+	public static String CORPUS_PATH;
+	public static String INDEX_PATH;
 	public static final boolean USE_STEMMER = true;
 	public static final boolean USE_STOPWORD = true;
         //public static final String CORPUS_PATH = "D:\\Documents\\NetBeansProjects\\lucene\\corpus-example";

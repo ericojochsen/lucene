@@ -26,7 +26,7 @@ import org.apache.lucene.store.FSDirectory;
 public class SearchFiles {
 	/** SET THE VARIABLE HERE */
 	// Index from IndexFiles path
-	public static final String INDEX_PATH = "C:\\Users\\Jmslord\\Documents\\NetBeansProjects\\customized-indonesian-analyzer\\index-example";
+	public static String INDEX_PATH ;
 	// True if you want to use stemmer, false otherwise
 	public static final boolean USE_STEMMER = true;
 	// True if you want to use stopword removal, false otherwise
